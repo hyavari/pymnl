@@ -166,7 +166,7 @@ class Message(object):
         self._pid = 0
         self._payload = None
 
-        if (buffer):
+        if buffer:
             (self._msg_length,
              self._msg_type,
              self._msg_flags,
@@ -178,7 +178,7 @@ class Message(object):
     def __len__(self):
         """ Get the unaligned length of the message (in bytes).
         """
-        if (self._payload):
+        if self._payload:
             return MSG_HDRLEN + len(self._payload)
         else:
             return MSG_HDRLEN
@@ -204,7 +204,7 @@ class Message(object):
 
             msg_type - 2-byte integer
         """
-        if ((msg_type & 0xffff) != msg_type):
+        if (msg_type & 0xffff) != msg_type:
             raise ValueError("Message type must be between 0 and " +
                              "65535, inclusive.")
         self._msg_type = msg_type
@@ -219,7 +219,7 @@ class Message(object):
 
             flags - 2-byte integer
         """
-        if ((flags & 0xffff) != flags):
+        if (flags & 0xffff) != flags:
             raise ValueError("Message flags must be between 0 and " +
                              "65535, inclusive.")
         self._msg_flags = flags
@@ -234,7 +234,7 @@ class Message(object):
 
             seq - 4-byte integer
         """
-        if ((seq & 0xffffffff) != seq):
+        if (seq & 0xffffffff) != seq:
             raise ValueError("Message sequence number must be " +
                              "between 0 and 4294967295, inclusive.")
         self._msg_seq = seq
@@ -249,7 +249,7 @@ class Message(object):
 
             pid - 4-byte integer
         """
-        if ((pid & 0xffffffff) != pid):
+        if (pid & 0xffffffff) != pid:
             raise ValueError("Message port id must be between 0 and " +
                              "4294967295, inclusive.")
         self._pid = pid
@@ -264,9 +264,9 @@ class Message(object):
 
             data - Payload or string
         """
-        if (not isinstance(data, Payload)):
+        if not isinstance(data, Payload):
             data = Payload(data)
-        if (self._payload):
+        if self._payload:
             self._payload = Payload(self._payload.get_binary() +
                                     data.get_binary())
         else:
@@ -300,7 +300,7 @@ class Message(object):
             track).
         """
         match = True
-        if ((self._msg_seq > 0) and (seq > 0)):
+        if (self._msg_seq > 0) and (seq > 0):
             match = (self._msg_seq == seq)
         return match
 
@@ -320,7 +320,7 @@ class Message(object):
             (that we do not track).
         """
         match = True
-        if ((self._pid > 0) and (portid > 0)):
+        if (self._pid > 0) and (portid > 0):
             match = (self._pid == portid)
         return match
 
@@ -351,16 +351,16 @@ class Message(object):
             The lack of one flag is displayed with '-'.
         """
         request = "-"
-        if (self._msg_flags & NLM_F_REQUEST):
+        if self._msg_flags & NLM_F_REQUEST:
             request = "R"
         multi = "-"
-        if (self._msg_flags & NLM_F_MULTI):
+        if self._msg_flags & NLM_F_MULTI:
             multi = "M"
         ack = "-"
-        if (self._msg_flags & NLM_F_ACK):
+        if self._msg_flags & NLM_F_ACK:
             ack = "A"
         echo = "-"
-        if (self._msg_flags & NLM_F_ECHO):
+        if self._msg_flags & NLM_F_ECHO:
             echo = "E"
         print("----------------\t------------------")
         print("|  %.010u  |\t| message length |" % len(self))
@@ -384,7 +384,7 @@ class Message(object):
         """ Return a packed struct suitable for sending through a
             netlink socket.
         """
-        if (not self._payload):
+        if not self._payload:
             raise UnboundLocalError("There is no payload in this message")
 
         self._msg_length = NLMSG_ALIGN(MSG_HDRLEN + len(self._payload))
@@ -400,13 +400,13 @@ class Message(object):
         """ Return the errno reported by Netlink.
         """
         errno_ = 0
-        if (self._msg_type == NLMSG_ERROR):
+        if self._msg_type == NLMSG_ERROR:
             # The error code is a signed integer stored in the
             #   first four bytes of the payload
             errno_ = unpack("i", self._payload.get_data()[:4])[0]
             # "Netlink subsystems returns the errno value
             #   with different signess" -- libmnl/src/callback.c
-            if (errno_ < 0):
+            if errno_ < 0:
                 errno_ = -1 * errno_
         return errno_
 
@@ -425,7 +425,7 @@ class Payload(object):
                        When passing an object, it must implement the
                        get_binary() method.
         """
-        if (contents):
+        if contents:
             self.set(contents)
         else:
             self._contents = b''
@@ -442,7 +442,7 @@ class Payload(object):
                         When passing an object, it must implement the
                         get_binary() method.
         """
-        if (isinstance(contents, str) or isinstance(contents, bytes)):
+        if isinstance(contents, str) or isinstance(contents, bytes):
             # Py2, it's a str; Py3, it's a bytes
             self._contents = contents
         else:
@@ -492,18 +492,18 @@ class Payload(object):
             # make a stunted Attr so we can test its attribute-ness later
             one_attr = Attr(packed_data=self._contents[index:index + 4])
 
-            if (msg_type < NLMSG_MIN_TYPE):
+            if msg_type < NLMSG_MIN_TYPE:
                 # netlink control message
                 print("| %.2x %.2x %.2x %.2x  |\t|                |" %
                       (0xff & buf[0],  0xff & buf[1],
                        0xff & buf[2],  0xff & buf[3]))
-            elif (extra_header_size > 0):
+            elif extra_header_size > 0:
                 # special handling for the extra header
                 extra_header_size = extra_header_size - 4
                 print("| %.2x %.2x %.2x %.2x  |\t|  extra header  |" %
                       (0xff & buf[0],  0xff & buf[1],
                        0xff & buf[2],  0xff & buf[3]))
-            elif ((rem == 0) and (one_attr.get_type() != 0)):
+            elif (rem == 0) and (one_attr.get_type() != 0):
                 # this seems like an attribute header
                 # Since this looks like an attribute, make a full Attr
                 #   with which to work.
@@ -515,10 +515,10 @@ class Payload(object):
                 line = line + "|"
                 line = line + "%c[%d;%dm" % (27, 1, 32)
                 nest = "-"
-                if (one_attr.is_nested()):
+                if one_attr.is_nested():
                     nest = "N"
                 byteorder = "-"
-                if (one_attr._type & pymnl.attributes.NLA_F_NET_BYTEORDER):
+                if one_attr._type & pymnl.attributes.NLA_F_NET_BYTEORDER:
                     byteorder = "B"
                 line = line + "%c%c" % (nest, byteorder)
                 line = line + "%c[%dm" % (27, 0)
@@ -528,10 +528,10 @@ class Payload(object):
                 line = line + "%c[%dm|\t" % (27, 0)
                 line = line + "|len |flags| type|"
                 print(line)
-                if (not one_attr.is_nested()):
+                if not one_attr.is_nested():
                     rem = (len(one_attr) -
                            calcsize(pymnl.attributes.header_format))
-            elif (rem > 0):
+            elif rem > 0:
                 # this is the attribute payload
                 rem = rem - 4
                 line = ("| %.2x %.2x %.2x %.2x  |\t" %
@@ -546,7 +546,7 @@ class Payload(object):
                     # buffer bytes for both Py2 and Py3.  This way, the
                     # bitwise ops work above and the isalnum()
                     # test works here.
-                    if (not chr(buf[bindex]).isalnum()):
+                    if not chr(buf[bindex]).isalnum():
                         buf[bindex] = 0
                 line = line + ("\t %c %c %c %c" %
                                (buf[0], buf[1], buf[2], buf[3]))
@@ -582,9 +582,11 @@ class MessageList(list):
     def __init__(self, msg):
         """ msg - A Message object.
         """
-        if (isinstance(msg, Message)):
+        super().__init__()
+
+        if isinstance(msg, Message):
             self.append(msg)
-        elif (isinstance(msg, str) or isinstance(msg, bytes)):
+        elif isinstance(msg, str) or isinstance(msg, bytes):
             # Py2, it's a str; Py3, it's a bytes
             self.split(msg)
         else:
@@ -602,10 +604,10 @@ class MessageList(list):
     def split(self, msg):
         """ Split multipart message into its component messages.
         """
-        while (msg):
+        while msg:
             one_msg = Message(msg)
             # Is more data than message header calls for available?
-            if (len(one_msg) > one_msg._msg_length):
+            if len(one_msg) > one_msg._msg_length:
                 # make a Message from the right amount of data
                 self.append(Message(msg[:one_msg._msg_length]))
                 # strip off the data used to make previous Message

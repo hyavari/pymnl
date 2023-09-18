@@ -74,7 +74,7 @@ def PYMNL_ALIGN(align_size):
 
         Only works with alignment on powers of 2.
     """
-    return lambda len: (((len) + align_size - 1) & ~(align_size - 1))
+    return lambda len: ((len + align_size - 1) & ~(align_size - 1))
 
 #
 # linux/netlink.h

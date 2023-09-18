@@ -154,7 +154,7 @@ class Attr(object):
                 attribute data.  This could be the output from another
                 object's get_binary() method or data directly from Netlink.
         """
-        if (packed_data):
+        if packed_data:
             # process packed struct into Attr's fields
             (self._length,
              self._type) = unpack(header_format, packed_data[:4])
@@ -176,7 +176,7 @@ class Attr(object):
     def new_u8(cls, type, value):
         """ Return a new one byte long Attr object.
         """
-        if ((value < 0) or (value > pow(2, 8))):
+        if (value < 0) or (value > pow(2, 8)):
             raise TypeError
         return cls(type=type, value=pack("B", value))
 
@@ -184,7 +184,7 @@ class Attr(object):
     def new_u16(cls, type, value):
         """ Return a new two byte long Attr object.
         """
-        if ((value < 0) or (value > pow(2, 16))):
+        if (value < 0) or (value > pow(2, 16)):
             raise TypeError
         return cls(type=type, value=pack("H", value))
 
@@ -192,7 +192,7 @@ class Attr(object):
     def new_u32(cls, type, value):
         """ Return a new four byte long Attr object.
         """
-        if ((value < 0) or (value > pow(2, 32))):
+        if (value < 0) or (value > pow(2, 32)):
             raise TypeError
         return cls(type=type, value=pack("I", value))
 
@@ -200,7 +200,7 @@ class Attr(object):
     def new_u64(cls, type, value):
         """ Return a new eight byte long Attr object.
         """
-        if ((value < 0) or (value > pow(2, 64))):
+        if (value < 0) or (value > pow(2, 64)):
             raise TypeError
         return cls(type=type, value=pack("Q", value))
 
@@ -208,7 +208,7 @@ class Attr(object):
     def new_str(cls, type, value):
         """ Return a new Attr object with a non-zero-terminated string.
         """
-        if (not isinstance(value, bytes)):
+        if not isinstance(value, bytes):
             raise TypeError
         return cls(type=type, value=pack(repr(len(value)) + "s", value))
 
@@ -219,7 +219,7 @@ class Attr(object):
             This method will add the null termination.  Pass this
             method a non-zero-terminated string.
         """
-        if (not isinstance(value, bytes)):
+        if not isinstance(value, bytes):
             raise TypeError
         value = value + b'\x00'
         return cls.new_str(type=type, value=value)
@@ -242,7 +242,7 @@ class Attr(object):
     def type_valid(self):
         """ Return False if the type is not known, otherwise return True.
         """
-        if (self.get_type() > TYPE_MAX):
+        if self.get_type() > TYPE_MAX:
             return False
         return True
 
@@ -252,7 +252,7 @@ class Attr(object):
             Raises TypeError if the data length does not match
             the length expected for the type.
         """
-        if (self.get_value_len() != _u8):
+        if self.get_value_len() != _u8:
             raise TypeError("The attribute is not an 8-bit value")
         return unpack("B", self._value)[0]
 
@@ -262,7 +262,7 @@ class Attr(object):
             Raises TypeError if the data length does not match
             the length expected for the type.
         """
-        if (self.get_value_len() != _u16):
+        if self.get_value_len() != _u16:
             raise TypeError("The attribute is not a 16-bit value")
         return unpack("H", self._value)[0]
 
@@ -272,7 +272,7 @@ class Attr(object):
             Raises TypeError if the data length does not match
             the length expected for the type.
         """
-        if (self.get_value_len() != _u32):
+        if self.get_value_len() != _u32:
             raise TypeError("The attribute is not a 32-bit value")
         return unpack("I", self._value)[0]
 
@@ -282,7 +282,7 @@ class Attr(object):
             Raises TypeError if the data length does not match
             the length expected for the type.
         """
-        if (self.get_value_len() != _u64):
+        if self.get_value_len() != _u64:
             raise TypeError("The attribute is not a 64-bit value")
         return unpack("Q", self._value)[0]
 
@@ -294,10 +294,10 @@ class Attr(object):
             A string should have a non-zero length and a null-terminated
             string should have a null termination or something went wrong.
         """
-        if (self.get_value_len() == 0):
+        if self.get_value_len() == 0:
             raise TypeError("String attribute is too short")
-        if (self.get_type() == TYPE_NUL_STRING):
-            if ((self._value[-1] != b'\x00') and (self._value[-1] != 0)):
+        if self.get_type() == TYPE_NUL_STRING:
+            if (self._value[-1] != b'\x00') and (self._value[-1] != 0):
                 # b'\x00' works in Py2, but 0 works in Py3
                 raise TypeError("This attribute is not null-terminated," +
                                 "as it claims to be")
@@ -307,7 +307,7 @@ class Attr(object):
         """ Return value as a string, without zero terminator.
         """
         string_ = self.get_str()
-        if ((string_[-1] == b'\x00') or (string_[-1] == 0)):
+        if (string_[-1] == b'\x00') or (string_[-1] == 0):
             # b'\x00' works in Py2, but 0 works in Py3, gah!
             string_ = string_[:-1]
         return string_
@@ -366,7 +366,7 @@ class AttrParser(object):
         self._attributes = []
         # dict to hold attribute type to callback method mapping
         self._cb = {}
-        if (data_obj):
+        if data_obj:
             self._attributes = self.parse(data_obj, offset)
 
     def parse_string(self, data, offset=0):
@@ -384,7 +384,7 @@ class AttrParser(object):
             to retrieve individual attributes from the data.
         """
         index = offset
-        while (index < len(data)):
+        while index < len(data):
             try:
                 attr_length = unpack("H", data[index:index + 2])[0]
             except:

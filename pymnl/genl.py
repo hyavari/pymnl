@@ -193,7 +193,7 @@ class GenlFamilyAttrParser(AttrParser):
                     CTRL_ATTR_MAXATTR: self.ctrl_attr_maxattr,
                     CTRL_ATTR_OPS: self.ctrl_attr_ops,
                     CTRL_ATTR_MCAST_GROUPS: self.ctrl_attr_mcast_groups}
-        if (data_obj):
+        if data_obj:
             self.parse(data_obj, offset)
 
     def ctrl_attr_family_id(self, attr):
